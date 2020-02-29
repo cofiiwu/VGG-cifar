@@ -79,15 +79,22 @@ class Trainer(object):
             batch_data = self._train_data.next_batch_dict()
             im = batch_data['image']
             label = batch_data['label']
-            _, loss, acc = sess.run(
-                [self._train_op, self._train_loss_op, self._train_accuracy_op], 
-                feed_dict={self._t_model.image: im,
-                           self._t_model.label: label,
-                           self._t_model.lr: self._lr,
-                           self._t_model.keep_prob: keep_prob}, 
-                options=run_options, 
+            if step == 100:
+                _, loss, acc = sess.run(
+                    [self._train_op, self._train_loss_op, self._train_accuracy_op], 
+                    feed_dict={self._t_model.image: im,
+                               self._t_model.label: label,
+                               self._t_model.lr: self._lr,
+                               self._t_model.keep_prob: keep_prob}, 
+                    options=run_options, 
                 run_metadata=run_metadata)
-
+            else:
+                _, loss, acc = sess.run(
+                    [self._train_op, self._train_loss_op, self._train_accuracy_op], 
+                    feed_dict={self._t_model.image: im,
+                               self._t_model.label: label,
+                               self._t_model.lr: self._lr,
+                               self._t_model.keep_prob: keep_prob})
             loss_sum += loss
             acc_sum += acc
 

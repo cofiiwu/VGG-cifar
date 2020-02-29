@@ -34,37 +34,39 @@ def vgg19_conv(layer_dict, keep_prob, inputs=None, pretrained_dict=None,
     with arg_scope([L.conv], layer_dict=layer_dict, pretrained_dict=pretrained_dict,
                     bn=bn, nl=tf.nn.relu, init_w=init_w, trainable=trainable,
                     is_training=is_training, wd=wd, add_summary=False):
+        with tf.device("/gpu:0"):
 
-        L.conv(filter_size=3, out_dim=64, name='conv1_1')
-        L.conv(filter_size=3, out_dim=64, name='conv1_2')
-        L.max_pool(layer_dict, name='pool1')
-        L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+            L.conv(filter_size=3, out_dim=64, name='conv1_1')
+            L.conv(filter_size=3, out_dim=64, name='conv1_2')
+            L.max_pool(layer_dict, name='pool1')
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
 
-        L.conv(filter_size=3, out_dim=128, name='conv2_1')
-        L.conv(filter_size=3, out_dim=128, name='conv2_2')
-        L.max_pool(layer_dict, name='pool2')
-        L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+            L.conv(filter_size=3, out_dim=128, name='conv2_1')
+            L.conv(filter_size=3, out_dim=128, name='conv2_2')
+            L.max_pool(layer_dict, name='pool2')
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
 
-        L.conv(filter_size=3, out_dim=256, name='conv3_1')
-        L.conv(filter_size=3, out_dim=256, name='conv3_2')
-        L.conv(filter_size=3, out_dim=256, name='conv3_3')
-        L.conv(filter_size=3, out_dim=256, name='conv3_4')
-        L.max_pool(layer_dict, name='pool3')
-        L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+            L.conv(filter_size=3, out_dim=256, name='conv3_1')
+            L.conv(filter_size=3, out_dim=256, name='conv3_2')
+            L.conv(filter_size=3, out_dim=256, name='conv3_3')
+            L.conv(filter_size=3, out_dim=256, name='conv3_4')
+            L.max_pool(layer_dict, name='pool3')
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+        with tf.device("/gpu:1"):
 
-        L.conv(filter_size=3, out_dim=512, name='conv4_1')
-        L.conv(filter_size=3, out_dim=512, name='conv4_2')
-        L.conv(filter_size=3, out_dim=512, name='conv4_3')
-        L.conv(filter_size=3, out_dim=512, name='conv4_4')
-        L.max_pool(layer_dict, name='pool4')
-        L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
-
-        L.conv(filter_size=3, out_dim=512, name='conv5_1')
-        L.conv(filter_size=3, out_dim=512, name='conv5_2')
-        L.conv(filter_size=3, out_dim=512, name='conv5_3')
-        L.conv(filter_size=3, out_dim=512, name='conv5_4')
-        L.max_pool(layer_dict, name='pool5')
-        # L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+            L.conv(filter_size=3, out_dim=512, name='conv4_1')
+            L.conv(filter_size=3, out_dim=512, name='conv4_2')
+            L.conv(filter_size=3, out_dim=512, name='conv4_3')
+            L.conv(filter_size=3, out_dim=512, name='conv4_4')
+            L.max_pool(layer_dict, name='pool4')
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+            
+            L.conv(filter_size=3, out_dim=512, name='conv5_1')
+            L.conv(filter_size=3, out_dim=512, name='conv5_2')
+            L.conv(filter_size=3, out_dim=512, name='conv5_3')
+            L.conv(filter_size=3, out_dim=512, name='conv5_4')
+            L.max_pool(layer_dict, name='pool5')
+            # L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
 
         return layer_dict['cur_input']
 
@@ -78,34 +80,34 @@ def vgg16_conv(layer_dict, keep_prob, inputs=None, pretrained_dict=None,
     with arg_scope([L.conv], layer_dict=layer_dict, pretrained_dict=pretrained_dict,
                     bn=bn, nl=tf.nn.relu, init_w=init_w, trainable=trainable,
                     is_training=is_training, wd=wd, add_summary=False):
+        with tf.device("/gpu:0"):
+            L.conv(filter_size=3, out_dim=64, name='conv1_1')
+            L.conv(filter_size=3, out_dim=64, name='conv1_2')
+            L.max_pool(layer_dict, name='pool1')
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
 
-        L.conv(filter_size=3, out_dim=64, name='conv1_1')
-        L.conv(filter_size=3, out_dim=64, name='conv1_2')
-        L.max_pool(layer_dict, name='pool1')
-        L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+            L.conv(filter_size=3, out_dim=128, name='conv2_1')
+            L.conv(filter_size=3, out_dim=128, name='conv2_2')
+            L.max_pool(layer_dict, name='pool2')
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+        
+            L.conv(filter_size=3, out_dim=256, name='conv3_1')
+            L.conv(filter_size=3, out_dim=256, name='conv3_2')
+            L.conv(filter_size=3, out_dim=256, name='conv3_3')
+            L.max_pool(layer_dict, name='pool3')
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
 
-        L.conv(filter_size=3, out_dim=128, name='conv2_1')
-        L.conv(filter_size=3, out_dim=128, name='conv2_2')
-        L.max_pool(layer_dict, name='pool2')
-        L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
-
-        L.conv(filter_size=3, out_dim=256, name='conv3_1')
-        L.conv(filter_size=3, out_dim=256, name='conv3_2')
-        L.conv(filter_size=3, out_dim=256, name='conv3_3')
-        L.max_pool(layer_dict, name='pool3')
-        L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
-
-        L.conv(filter_size=3, out_dim=512, name='conv4_1')
-        L.conv(filter_size=3, out_dim=512, name='conv4_2')
-        L.conv(filter_size=3, out_dim=512, name='conv4_3')
-        L.max_pool(layer_dict, name='pool4')
-        L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
-
-        L.conv(filter_size=3, out_dim=512, name='conv5_1')
-        L.conv(filter_size=3, out_dim=512, name='conv5_2')
-        L.conv(filter_size=3, out_dim=512, name='conv5_3')
-        L.max_pool(layer_dict, name='pool5')
-        L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+            L.conv(filter_size=3, out_dim=512, name='conv4_1')
+            L.conv(filter_size=3, out_dim=512, name='conv4_2')
+            L.conv(filter_size=3, out_dim=512, name='conv4_3')
+            L.max_pool(layer_dict, name='pool4')
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
+        with tf.device("/gpu:1"):
+            L.conv(filter_size=3, out_dim=512, name='conv5_1')
+            L.conv(filter_size=3, out_dim=512, name='conv5_2')
+            L.conv(filter_size=3, out_dim=512, name='conv5_3')
+            L.max_pool(layer_dict, name='pool5')
+            L.drop_out(layer_dict, is_training, keep_prob=keep_prob)
 
         return layer_dict['cur_input']
 
