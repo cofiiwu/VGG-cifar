@@ -15,7 +15,7 @@ def display(global_step,
             collection,
             summary_val=None,
             summary_writer=None,
-            ):
+            meta=None):
     print('[step: {}]'.format(global_step), end='')
     for val, name in zip(scaler_sum_list, name_list):
         print(' {}: {:.4f}'.format(name, val * 1. / step), end='')
@@ -28,6 +28,9 @@ def display(global_step,
         summary_writer.add_summary(s, global_step)
         if summary_val is not None:
             summary_writer.add_summary(summary_val, global_step)
+        if meta is not None:
+            summary_writer.add_run_metadata(meta, 'step%d' % global_step)
+
 
 class Trainer(object):
     def __init__(self, train_model, valid_model, train_data, init_lr=1e-3):
@@ -65,6 +68,9 @@ class Trainer(object):
         step = 0
         loss_sum = 0
         acc_sum = 0
+        run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+        run_metadata = tf.RunMetadata()
+
         self.epoch_id += 1
         while cur_epoch == self._train_data.epochs_completed:
             self.global_step += 1
@@ -78,7 +84,9 @@ class Trainer(object):
                 feed_dict={self._t_model.image: im,
                            self._t_model.label: label,
                            self._t_model.lr: self._lr,
-                           self._t_model.keep_prob: keep_prob})
+                           self._t_model.keep_prob: keep_prob}, 
+                options=run_options, 
+                run_metadata=run_metadata)
 
             loss_sum += loss
             acc_sum += acc
@@ -99,7 +107,7 @@ class Trainer(object):
                 display_name_list,
                 'train',
                 summary_val=cur_summary,
-                summary_writer=summary_writer)
+                summary_writer=summary_writer,meta = run_metadata)
 
     def valid_epoch(self, sess, dataflow, summary_writer=None):
         display_name_list = ['loss', 'accuracy']
