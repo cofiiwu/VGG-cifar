@@ -55,9 +55,11 @@ class BaseVGG(BaseModel):
 
         with tf.variable_scope('conv_layers', reuse=tf.AUTO_REUSE):
             self.layers['conv_out'] = self._conv_layers(vgg_input)
-        with tf.variable_scope('fc_layers', reuse=tf.AUTO_REUSE):   
-            self.layers['logits'] = self._fc_layers(self.layers['conv_out'])
-            self.layers['gap_out'] = L.global_avg_pool(self.layers['logits'])
+        with tf.device("/gpu:1"):
+
+            with tf.variable_scope('fc_layers', reuse=tf.AUTO_REUSE):   
+                self.layers['logits'] = self._fc_layers(self.layers['conv_out'])
+                self.layers['gap_out'] = L.global_avg_pool(self.layers['logits'])
 
     def create_test_model(self):
         self.set_is_training(is_training=False)
@@ -87,18 +89,19 @@ class BaseVGG(BaseModel):
         return fc_out
 
     def _get_loss(self):
-        with tf.name_scope('loss'):
-            labels = self.label
-            logits = self.layers['gap_out']
-            # logits = tf.squeeze(logits, axis=1)
-            cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
-                labels=labels,
-                logits=logits,
-                name='cross_entropy')
-            return tf.reduce_mean(cross_entropy)
+        with tf.device("/gpu:1"):
+            with tf.name_scope('loss'):
+                labels = self.label
+                logits = self.layers['gap_out']
+                # logits = tf.squeeze(logits, axis=1)
+                cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
+                    labels=labels,
+                    logits=logits,
+                    name='cross_entropy')
+                return tf.reduce_mean(cross_entropy)
 
     def _get_optimizer(self):
-        return tf.train.AdamOptimizer(self.lr)
+            return tf.train.AdamOptimizer(self.lr)
 
     def get_accuracy(self):
         with tf.name_scope('accuracy'):

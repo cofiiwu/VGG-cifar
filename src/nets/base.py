@@ -37,6 +37,7 @@ class BaseModel(object):
         with tf.name_scope('train'):
             opt = self.get_optimizer()
             loss = self.get_loss()
+            opt.minimize(colocate_gradients_with_ops=True,loss=loss)
             var_list = tf.trainable_variables()
             grads = tf.gradients(loss, var_list)
             if moniter:

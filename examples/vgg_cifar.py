@@ -57,7 +57,7 @@ def train():
 
     trainer = Trainer(train_model, valid_model, train_data, init_lr=FLAGS.lr)
 
-    with tf.Session() as sess:
+    with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
         writer = tf.summary.FileWriter(SAVE_PATH)
         saver = tf.train.Saver()
         sess.run(tf.global_variables_initializer())

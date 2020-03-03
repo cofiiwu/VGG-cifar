@@ -6,6 +6,8 @@
 import os
 import numpy as np
 import tensorflow as tf
+from tensorflow.python.profiler import model_analyzer
+from tensorflow.python.profiler import option_builder
 
 
 def display(global_step,
@@ -70,6 +72,7 @@ class Trainer(object):
         acc_sum = 0
         run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
         run_metadata = tf.RunMetadata()
+        profiler = model_analyzer.Profiler(graph=sess.graph)
 
         self.epoch_id += 1
         while cur_epoch == self._train_data.epochs_completed:
@@ -87,7 +90,10 @@ class Trainer(object):
                                self._t_model.lr: self._lr,
                                self._t_model.keep_prob: keep_prob}, 
                     options=run_options, 
-                run_metadata=run_metadata)
+                    run_metadata=run_metadata)
+                print('Adding run metadata for', step)
+                profiler.add_step(step=step, run_meta=run_metadata)
+
             else:
                 _, loss, acc = sess.run(
                     [self._train_op, self._train_loss_op, self._train_accuracy_op], 
@@ -115,6 +121,12 @@ class Trainer(object):
                 'train',
                 summary_val=cur_summary,
                 summary_writer=summary_writer,meta = run_metadata)
+        profile_scope_opt_builder = option_builder.ProfileOptionBuilder(tf.profiler.ProfileOptionBuilder.time_and_memory())
+        profile_scope_opt_builder.with_max_depth(8)
+        profile_scope_opt_builder.select(['device','micros'])
+        #profile_scope_opt_builder.order_by('output_bytes')
+        profiler.profile_name_scope(profile_scope_opt_builder.build())
+
 
     def valid_epoch(self, sess, dataflow, summary_writer=None):
         display_name_list = ['loss', 'accuracy']
