@@ -63,8 +63,7 @@ def train():
         sess.run(tf.global_variables_initializer())
         #writer.add_summary(summary,1)
         writer.add_graph(sess.graph)
-#        for epoch_id in range(FLAGS.maxepoch):
-        for epoch_id in range(1):
+        for epoch_id in range(FLAGS.maxepoch):
             trainer.train_epoch(sess, keep_prob=FLAGS.keep_prob, summary_writer=writer)
             trainer.valid_epoch(sess, dataflow=valid_data, summary_writer=writer)
             saver.save(sess, '{}vgg-cifar-epoch-{}'.format(SAVE_PATH, epoch_id))

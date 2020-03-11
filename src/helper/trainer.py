@@ -6,7 +6,8 @@
 import os
 import numpy as np
 import tensorflow as tf
-
+from tensorflow.python.profiler import model_analyzer
+from tensorflow.python.profiler import option_builder
 
 def display(global_step,
             step,
@@ -64,7 +65,7 @@ class Trainer(object):
         cur_summary = None
 
         cur_epoch = self._train_data.epochs_completed
-
+        profiler = model_analyzer.Profiler(graph=sess.graph)
         step = 0
         loss_sum = 0
         acc_sum = 0
@@ -73,20 +74,32 @@ class Trainer(object):
 
         self.epoch_id += 1
         while cur_epoch == self._train_data.epochs_completed:
+            print("cur_epoch=%d completed:%d step:%d"%(cur_epoch,self._train_data.epochs_completed, step ))
             self.global_step += 1
             step += 1
 
             batch_data = self._train_data.next_batch_dict()
             im = batch_data['image']
             label = batch_data['label']
-            _, loss, acc = sess.run(
-                [self._train_op, self._train_loss_op, self._train_accuracy_op], 
-                feed_dict={self._t_model.image: im,
-                           self._t_model.label: label,
-                           self._t_model.lr: self._lr,
-                           self._t_model.keep_prob: keep_prob}, 
-                options=run_options, 
-                run_metadata=run_metadata)
+            #if (step % 10 == 0)and (step<400):
+            if(step == 100):
+                _, loss, acc = sess.run(
+                    [self._train_op, self._train_loss_op, self._train_accuracy_op], 
+                    feed_dict={self._t_model.image: im,
+                               self._t_model.label: label,
+                               self._t_model.lr: self._lr,
+                               self._t_model.keep_prob: keep_prob}, 
+                    options=run_options, 
+                    run_metadata=run_metadata)
+                profiler.add_step(step=step, run_meta=run_metadata)
+
+            else:
+                _, loss, acc = sess.run(
+                    [self._train_op, self._train_loss_op, self._train_accuracy_op], 
+                    feed_dict={self._t_model.image: im,
+                               self._t_model.label: label,
+                               self._t_model.lr: self._lr,
+                               self._t_model.keep_prob: keep_prob})
 
             loss_sum += loss
             acc_sum += acc
@@ -108,6 +121,12 @@ class Trainer(object):
                 'train',
                 summary_val=cur_summary,
                 summary_writer=summary_writer,meta = run_metadata)
+        profile_scope_opt_builder = option_builder.ProfileOptionBuilder(tf.profiler.ProfileOptionBuilder.time_and_memory())
+        profile_scope_opt_builder.with_max_depth(8)
+        #profile_scope_opt_builder.select(['output_bytes'])
+        #profile_scope_opt_builder.order_by('output_bytes')
+        profiler.profile_name_scope(profile_scope_opt_builder.build())
+
 
     def valid_epoch(self, sess, dataflow, summary_writer=None):
         display_name_list = ['loss', 'accuracy']
